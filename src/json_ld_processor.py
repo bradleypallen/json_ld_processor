@@ -145,7 +145,13 @@ class Processor(object):
                     for element in subj: # then for each element in the array
                         for t in self.__triples(element, subj, prop, context): # recurse
                             yield t # yielding each resulting triple
-                    subj = "_:" + uuid.uuid4().hex # and set the current subject to a auto-generated bnode 
+                    subj = "_:" + uuid.uuid4().hex # and set the current subject to a auto-generated bnode
+                elif type(subj).__name__ == 'dict': # otherwise if we have an associative array as a subject
+                    for t in self.__triples(subj, subj, prop, context): # recurse
+                        yield t # yielding each resulting triple
+                    subj = subj["@"] # and set the current subject to the subject of the associative array
+                else: # otherwise, we have a term
+                    subj = self.__term_to_iri(subj, context) # so we set the current subject to the mapped IRI for the term given the current context
             else: # otherwise, we have no reference to a resource
                 subj = "_:" + uuid.uuid4().hex # so we set the current subject to a auto-generated bnode
                 item['@'] = subj # and add that explicitly to the associative array (for use when we come back from a recursion)
@@ -175,7 +181,7 @@ class Processor(object):
             for element in item: # then for each element in the array
                 for t in self.__triples(element, subj, prop, context): # recurse
                     yield t # yielding each resulting triple
-        else: # otherwise the item is not and array
+        else: # otherwise the item is not an array
             raise Exception("Item is neither a regular nor an associative array: %s" % item) # and we raise an exception
         
     def __merge_contexts(self, local_context, active_context):
@@ -381,6 +387,16 @@ if __name__ == "__main__":
         def test_nested_associative_arrays_list(self):
             doc = '{ "#": { "foaf": "http://xmlns.com/foaf/0.1/" }, "@": "_:bnode1", "a": "foaf:Person", "foaf:homepage": "<http://example.com/bob/>", "foaf:name": "Bob", "foaf:knows": [ { "#": { "foaf": "http://xmlns.com/foaf/0.1/" }, "@": "_:bnode2", "a": "foaf:Person", "foaf:homepage": "<http://example.com/eve/>", "foaf:name": "Eve" }, { "#": { "foaf": "http://xmlns.com/foaf/0.1/" }, "@": "_:bnode3", "a": "foaf:Person", "foaf:homepage": "<http://example.com/manu/>", "foaf:name": "Manu" } ] }'
             target_graph = [{'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': u'_:bnode1', 'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'}, {'obj': u'Bob', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/name>'}, {'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': u'_:bnode2', 'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'}, {'obj': u'Eve', 'subj': u'_:bnode2', 'prop': u'<http://xmlns.com/foaf/0.1/name>'}, {'obj': u'<http://example.com/eve/>', 'subj': u'_:bnode2', 'prop': u'<http://xmlns.com/foaf/0.1/homepage>'}, {'obj': u'_:bnode2', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/knows>'}, {'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': u'_:bnode3', 'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'}, {'obj': u'Manu', 'subj': u'_:bnode3', 'prop': u'<http://xmlns.com/foaf/0.1/name>'}, {'obj': u'<http://example.com/manu/>', 'subj': u'_:bnode3', 'prop': u'<http://xmlns.com/foaf/0.1/homepage>'}, {'obj': u'_:bnode3', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/knows>'}, {'obj': u'<http://example.com/bob/>', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/homepage>'}]
+            self.json_ld_processing_test_case(doc, target_graph)
+
+        def test_associative_array_without_explicit_subject_as_subject(self):
+            doc = '{ "#": { "foaf": "http://xmlns.com/foaf/0.1/" }, "foaf:homepage": "<http://example.com/bob/>", "@": { "a": "foaf:Person", "foaf:name": "Bob" } }'
+            target_graph = [{'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': '_:98c0d50dcdc24b3cb13f1d037d750577', 'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'}, {'obj': u'Bob', 'subj': '_:98c0d50dcdc24b3cb13f1d037d750577', 'prop': u'<http://xmlns.com/foaf/0.1/name>'}, {'obj': u'<http://example.com/bob/>', 'subj': '_:98c0d50dcdc24b3cb13f1d037d750577', 'prop': u'<http://xmlns.com/foaf/0.1/homepage>'}]
+            self.json_ld_processing_test_case(doc, target_graph)
+
+        def test_associative_array_with_bnode_subject_as_subject(self):
+            doc = '{ "#": { "foaf": "http://xmlns.com/foaf/0.1/" }, "foaf:homepage": "<http://example.com/bob/>", "@": { "@": "_:bnode1", "a": "foaf:Person", "foaf:name": "Bob" } }'
+            target_graph = [{'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': u'_:bnode1', 'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'}, {'obj': u'Bob', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/name>'}, {'obj': u'<http://example.com/bob/>', 'subj': u'_:bnode1', 'prop': u'<http://xmlns.com/foaf/0.1/homepage>'}]
             self.json_ld_processing_test_case(doc, target_graph)
 
     unittest.main() 

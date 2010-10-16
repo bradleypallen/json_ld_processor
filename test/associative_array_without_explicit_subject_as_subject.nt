@@ -1,0 +1,9 @@
+_:ae6bcd5ded3f4b20801e769238d5621d
+   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+     <http://xmlns.com/foaf/0.1/Person> .
+_:ae6bcd5ded3f4b20801e769238d5621d
+   <http://xmlns.com/foaf/0.1/name>
+    "Bob" .
+_:ae6bcd5ded3f4b20801e769238d5621d
+   <http://xmlns.com/foaf/0.1/homepage>
+     <http://example.com/bob/> .

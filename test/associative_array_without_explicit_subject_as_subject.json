@@ -1,0 +1,8 @@
+{
+   "#": { "foaf": "http://xmlns.com/foaf/0.1/" },
+   "foaf:homepage": "<http://example.com/bob/>",
+   "@": { 
+          "a": "foaf:Person", 
+          "foaf:name": "Bob" 
+        }
+}
