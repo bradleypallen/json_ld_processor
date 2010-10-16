@@ -1,0 +1,9 @@
+{
+  "foaf:homepage": "<http://manu.sporny.org>",
+  "@": "<http://example.org/people#joebob>",
+  "a": "<http://xmlns.com/foaf/0.1/Person>",
+  "foaf:name": "Mark Birbeck",
+  "foaf:name": "花澄@ja",
+  "dc:modified": "2010-05-29T14:17:39+02:00^^xsd:dateTime",
+  "foaf:nick": ["stu", "groknar", "radface"]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "@": "<http://purl.oreilly.com/works/45U8QJGZSQKDH8N>",
+    "a": "http://purl.org/vocab/frbr/core#Work",
+    "http://purl.org/dc/terms/title": "Just a Geek",
+    "http://purl.org/dc/terms/creator": "Whil Wheaton",
+    "http://purl.org/vocab/frbr/core#realization": 
+      ["<http://purl.oreilly.com/products/9780596007683.BOOK>", "<http://purl.oreilly.com/products/9780596802189.EBOOK>"]
+  },
+  {
+    "@": "<http://purl.oreilly.com/products/9780596007683.BOOK>",
+    "a": "<http://purl.org/vocab/frbr/core#Expression>",
+    "http://purl.org/dc/terms/type": "<http://purl.oreilly.com/product-types/BOOK>"
+  },
+  {
+    "@": "<http://purl.oreilly.com/products/9780596802189.EBOOK>",
+    "a": "http://purl.org/vocab/frbr/core#Expression",
+    "http://purl.org/dc/terms/type": "<http://purl.oreilly.com/product-types/EBOOK>"
+  }
+]

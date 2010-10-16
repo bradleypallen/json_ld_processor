@@ -1,0 +1,4 @@
+{
+  "@": "<http://example.org/articles/8>",
+  "dc:modified": ["2010-05-29T14:17:39+02:00^^xsd:dateTime", "2010-05-30T09:21:28-04:00^^xsd:dateTime"]
+}

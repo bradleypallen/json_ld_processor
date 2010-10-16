@@ -1,0 +1,21 @@
+<http://example.org/people#joebob>
+   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+     <http://xmlns.com/foaf/0.1/Person> .
+<http://example.org/people#joebob>
+   <http://xmlns.com/foaf/0.1/name>
+    "花澄@ja" .
+<http://example.org/people#joebob>
+   <http://xmlns.com/foaf/0.1/nick>
+    "stu" .
+<http://example.org/people#joebob>
+   <http://xmlns.com/foaf/0.1/nick>
+    "groknar" .
+<http://example.org/people#joebob>
+   <http://xmlns.com/foaf/0.1/nick>
+    "radface" .
+<http://example.org/people#joebob>
+   <http://xmlns.com/foaf/0.1/homepage>
+     <http://manu.sporny.org> .
+<http://example.org/people#joebob>
+   <http://purl.org/dc/terms/modified>
+    "2010-05-29T14:17:39+02:00^^xsd:dateTime" .

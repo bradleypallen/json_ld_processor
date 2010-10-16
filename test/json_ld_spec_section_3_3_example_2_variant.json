@@ -1,0 +1,12 @@
+{  
+   "#" : { 
+           "__vocab__" : "http://www.w3.org/1999/xhtml/microdata#",
+           "frbr" : "http://purl.org/vocab/frbr/core#",
+           "dc" : "http://purl.org/dc/terms/"
+         },
+   "a" : "frbr:Work",
+   "@" : "<http://purl.oreilly.com/works/45U8QJGZSQKDH8N>",
+   "dc:title" : "Just a Geek",
+   "dc:creator" : "Whil Wheaton",
+   "frbr:realization" : ["<http://purl.oreilly.com/products/9780596007683.BOOK>", "<http://purl.oreilly.com/products/9780596802189.EBOOK>"]
+}

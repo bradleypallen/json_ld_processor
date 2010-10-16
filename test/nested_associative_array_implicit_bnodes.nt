@@ -1,0 +1,21 @@
+_:5162de5184a74b3799ada4f7aa9c3828
+   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+     <http://xmlns.com/foaf/0.1/Person> .
+_:5162de5184a74b3799ada4f7aa9c3828
+   <http://xmlns.com/foaf/0.1/name>
+    "Bob" .
+_:7034be5cbb724e7c85a299cf89c929d2
+   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+     <http://xmlns.com/foaf/0.1/Person> .
+_:7034be5cbb724e7c85a299cf89c929d2
+   <http://xmlns.com/foaf/0.1/name>
+    "Eve" .
+_:7034be5cbb724e7c85a299cf89c929d2
+   <http://xmlns.com/foaf/0.1/homepage>
+     <http://example.com/eve/> .
+_:5162de5184a74b3799ada4f7aa9c3828
+   <http://xmlns.com/foaf/0.1/knows>
+     _:7034be5cbb724e7c85a299cf89c929d2 .
+_:5162de5184a74b3799ada4f7aa9c3828
+   <http://xmlns.com/foaf/0.1/homepage>
+     <http://example.com/bob/> .

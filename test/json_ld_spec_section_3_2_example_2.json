@@ -1,0 +1,12 @@
+{
+  "#": 
+  {
+    "vcard": "http://microformats.org/profile/hcard#vcard",
+    "url": "http://microformats.org/profile/hcard#url",
+    "fn": "http://microformats.org/profile/hcard#fn"
+  },
+  "@": "_:bnode1",
+  "a": "vcard",
+  "url": "<http://tantek.com/>",
+  "fn": "Tantek Çelik"
+}

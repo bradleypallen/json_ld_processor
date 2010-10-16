@@ -1,0 +1,23 @@
+[
+ {
+   "#": { "foaf": "http://xmlns.com/foaf/0.1/" },
+   "@": "_:bnode1",
+   "a": "foaf:Person",
+   "foaf:homepage": "<http://example.com/bob/>",
+   "foaf:name": "Bob"
+ },
+ {
+   "#": { "foaf": "http://xmlns.com/foaf/0.1/" },
+   "@": "_:bnode2",
+   "a": "foaf:Person",
+   "foaf:homepage": "<http://example.com/eve/>",
+   "foaf:name": "Eve"
+ },
+ {
+   "#": { "foaf": "http://xmlns.com/foaf/0.1/" },
+   "@": "_:bnode3",
+   "a": "foaf:Person",
+   "foaf:homepage": "<http://example.com/manu/>",
+   "foaf:name": "Manu"
+ }
+]

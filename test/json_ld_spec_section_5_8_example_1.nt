@@ -1,0 +1,6 @@
+<http://example.org/articles/8>
+   <http://purl.org/dc/terms/modified>
+    "2010-05-29T14:17:39+02:00^^xsd:dateTime" .
+<http://example.org/articles/8>
+   <http://purl.org/dc/terms/modified>
+    "2010-05-30T09:21:28-04:00^^xsd:dateTime" .

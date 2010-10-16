@@ -1,0 +1,6 @@
+{
+  "rdf:type": "foaf:Person",
+  "foaf:name": "Manu Sporny",
+  "foaf:homepage": "<http://manu.sporny.org/>",
+  "sioc:avatar": "<http://twitter.com/account/profile_image/manusporny>"
+}
