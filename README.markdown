@@ -12,8 +12,9 @@ the latest draft.
 In fact, one should expect numerous bugs, inefficiencies, and gross misunderstandings of key concepts in 
 the specification.
     
-That being said, the processor, executed on the command line, executes a test suite that shows 
-correct behavior over a number of test cases taken from the draft specification and from communications about JSON-LD.
+That being said, the processor, run from the command line, executes a test suite that shows 
+correct behavior over a number of test cases taken from the draft specification and other communications 
+about JSON-LD.
     
 ## Credits
 Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification.
@@ -74,13 +75,13 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
      |         <http://xmlns.com/foaf/0.1/name>
      |          "John Lennon" .
      
-     Usage:
-     $ ./json_ld_processor
-     ................
-     ----------------------------------------------------------------------
-     Ran 16 tests in 0.012s
+        Usage:
+        $ ./json_ld_processor.py
+        ................
+        ----------------------------------------------------------------------
+        Ran 16 tests in 0.012s
 
-     OK
+        OK
      
 ## json_ld_to_ntriples.py
     json_ld_to_ntriples(doc)
