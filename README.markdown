@@ -3,9 +3,7 @@
 json_ld_processor is an implementation of a document-based (i.e., non-streaming) JSON-LD processor in Python.
     
 JSON-LD is a JSON representation format for Linked Data. A public working draft of a potential specification of 
-JSON-LD is available at: 
-    
-        [http://json-ld.org/spec/latest/](http://json-ld.org/spec/latest/)
+JSON-LD is available at [http://json-ld.org/spec/latest/](http://json-ld.org/spec/latest/).
         
 json_ld_processor is an experimental implementation, written to support work in understanding and helping to 
 refine the JSON-LD draft specification. Therefore, one should expect rough but not complete compliance with 
