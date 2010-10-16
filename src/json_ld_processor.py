@@ -258,7 +258,7 @@ if __name__ == "__main__":
         but also include some based on individual and group conversations.
         
         Each test case simply takes a JSON-LD document, deserializes it using triples(), 
-        and tests to see the generated list of triples in the same as a target list of triples. 
+        and asserts that the generated list of triples is the same as a target list of triples. 
         '''
         
         def triple_in_graph(self, triple, graph):

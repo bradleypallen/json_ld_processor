@@ -1,32 +1,32 @@
 # json_ld_processor: A document-based JSON-LD processor in Python
 
-    json_ld_processor is an implementation of a document-based (i.e., non-streaming) 
-    JSON-LD processor in Python.
+json_ld_processor is an implementation of a document-based (i.e., non-streaming) JSON-LD processor in Python.
     
-    JSON-LD is a JSON representation format for Linked Data. A public working 
-    draft of a potential specification of JSON-LD is available at: 
+JSON-LD is a JSON representation format for Linked Data. A public working draft of a potential specification of 
+JSON-LD is available at: 
     
-        http://json-ld.org/spec/latest/
+        [http://json-ld.org/spec/latest/](http://json-ld.org/spec/latest/)
         
-    json_ld_processor is an experimental implementation, written to support work in 
-    understanding and helping to refine the JSON-LD draft specification. 
-    Therefore, one should expect rough but not complete compliance with 
-    the latest draft.
+json_ld_processor is an experimental implementation, written to support work in understanding and helping to 
+refine the JSON-LD draft specification. Therefore, one should expect rough but not complete compliance with 
+the latest draft.
     
-    If fact, one should expect numerous bugs, inefficiencies, and gross 
-    misunderstandings of key concepts in the specification.
+In fact, one should expect numerous bugs, inefficiencies, and gross misunderstandings of key concepts in 
+the specification.
     
-    That being said, the processor implementation, executed on the command line,
-    executes a test suite that shows correct behavior over a number of test
-    cases taken from the draft specification and from communications about JSON-LD.
+That being said, the processor, executed on the command line, executes a test suite that shows 
+correct behavior over a number of test cases taken from the draft specification and from communications about JSON-LD.
     
 ## Credits
 Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification.
 
-# Install
+# Requirements
+Python 2.5 or above.
+
+# Installation
 $ git clone git@github.com:bradleypallen/json_ld_processor.git
 
-# Python modules
+# Modules
 
 ## json_ld_processor.py    
     class Processor(__builtin__.object)
@@ -75,6 +75,14 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
      |      <http://example.org/people#john>
      |         <http://xmlns.com/foaf/0.1/name>
      |          "John Lennon" .
+     
+     Usage:
+     $ ./json_ld_processor
+     ................
+     ----------------------------------------------------------------------
+     Ran 16 tests in 0.012s
+
+     OK
      
 ## json_ld_to_ntriples.py
     json_ld_to_ntriples(doc)
