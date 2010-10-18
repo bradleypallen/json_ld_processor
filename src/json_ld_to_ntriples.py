@@ -24,10 +24,13 @@ def json_ld_to_ntriples(doc):
     '''
     p = jlp.Processor()
     for t in p.triples(doc):
-        print t["subj"].encode('utf-8')
-        print "  ", t["prop"].encode('utf-8')
-        if re.match("^_:.+$", t['obj']) or re.match("^<.+>$", t['obj']):
-            print "    ", t["obj"].encode('utf-8'), '.'
+        if re.match("^_:.+$", t['subj']):
+            print t["subj"].encode('utf-8')
+        else:
+            print "<" + t["subj"].encode('utf-8') + ">"
+        print "  <" + t["prop"].encode('utf-8') + ">"
+        if re.match("^_:.+$", t['obj']) or re.match("^\w+\:", t['obj']):
+            print "    <" + t["obj"].encode('utf-8') + "> ."
         else:
             print '    "%s"' % t["obj"].encode('utf-8'), '.'
         
