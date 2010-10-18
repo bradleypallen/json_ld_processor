@@ -57,22 +57,22 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
      |      yields the following triples
      |      
      |      { 
-     |        'obj': '<http://xmlns.com/foaf/0.1/Person>', 
-     |        'subj': '<http://example.org/people#john>', 
-     |        'prop': '<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>'
+     |        'obj': 'http://xmlns.com/foaf/0.1/Person', 
+     |        'subj': 'http://example.org/people#john', 
+     |        'prop': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
      |      }
      |      { 'obj': 'John Lennon', 
-     |        'subj': '<http://example.org/people#john>', 
-     |        'prop': '<http://xmlns.com/foaf/0.1/name>' 
+     |        'subj': 'http://example.org/people#john', 
+     |        'prop': 'http://xmlns.com/foaf/0.1/name' 
      |      }
      |      
      |      which can be serialized as follows in N-Triples format
      |      
      |      <http://example.org/people#john>
-     |         <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-     |           <http://xmlns.com/foaf/0.1/Person> .
+     |        <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+     |          <http://xmlns.com/foaf/0.1/Person> .
      |      <http://example.org/people#john>
-     |         <http://xmlns.com/foaf/0.1/name>
+     |        <http://xmlns.com/foaf/0.1/name>
      |          "John Lennon" .
      
         Usage:
@@ -91,10 +91,10 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
         Usage:
         $ ./json_ld_to_ntriples.py ../test/json_ld_org_landing_page_example.json
         <http://example.org/people#john>
-           <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-             <http://xmlns.com/foaf/0.1/Person> .
+          <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
+            <http://xmlns.com/foaf/0.1/Person> .
         <http://example.org/people#john>
-           <http://xmlns.com/foaf/0.1/name>
+          <http://xmlns.com/foaf/0.1/name>
             "John Lennon" .
 
 ## json_ld_to_unittest.py
