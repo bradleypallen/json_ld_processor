@@ -34,13 +34,42 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
      |  Methods defined here:
      |  
      |  __init__(self, context=None)
-     |      Returns an instance of a JSON-LD processor.
+     |      Creates a JSON-LD Processor.
      |      
-     |      The optional argument context allows the specification of a default context for the processor.
+     |      Keyword arguments:
+     |      context -- a Python dictionary providing the specification of a default context for the processor. 
+     |      
+     |      If context is None, the default context is equivalent to the following JSON-LD context:
+     |      
+     |      { 
+     |        "#": {
+     |               "__vocab__": "http://example.org/default-vocab#",
+     |               "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+     |               "xsd": "http://www.w3.org/2001/XMLSchema#",
+     |               "dc": "http://purl.org/dc/terms/",
+     |               "skos": "http://www.w3.org/2004/02/skos/core#",
+     |               "foaf": "http://xmlns.com/foaf/0.1/",
+     |               "sioc": "http://rdfs.org/sioc/ns#",
+     |               "cc": "http://creativecommons.org/ns#",
+     |               "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+     |               "vcard": "http://www.w3.org/2006/vcard/ns#",
+     |               "cal": "http://www.w3.org/2002/12/cal/ical#",
+     |               "doap": "http://usefulinc.com/ns/doap#",
+     |               "Person": "http://xmlns.com/foaf/0.1/Person",
+     |               "name": "http://xmlns.com/foaf/0.1/name",
+     |               "homepage": "http://xmlns.com/foaf/0.1/homepage"
+     |              }
+     |      }
+     |      
+     |      Returns: an instance of json_ld_processor.Processor.
      |  
-     |  triples(self, doc, context=None)
-     |      Returns an iterator that yields triples by deserializing doc (a str instance
-     |      containing a JSON_LD document.)
+     |  triples(self, doc)
+     |      An iterator that yields triples by deserializing a JSON_LD document.
+     |      
+     |      Arguments:
+     |      doc -- a str instance containing a JSON_LD document.
+     |      
+     |      Returns: an iterator.
      |      
      |      Each triple is a Python dictionary with keys "subj", "prop" and "obj", each
      |      with values of the triple's subject, property and object, respectively.
@@ -56,32 +85,25 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
      |      
      |      yields the following triples
      |      
-     |      { 
-     |        'obj': 'http://xmlns.com/foaf/0.1/Person', 
-     |        'subj': 'http://example.org/people#john', 
-     |        'prop': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
-     |      }
-     |      { 'obj': 'John Lennon', 
-     |        'subj': 'http://example.org/people#john', 
-     |        'prop': 'http://xmlns.com/foaf/0.1/name' 
+     |      {
+     |          'objtype': 'resource', 
+     |          'subj': u'http://example.org/people#john', 
+     |          'obj': u'http://xmlns.com/foaf/0.1/Person', 
+     |          'prop': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'
+     |      }, 
+     |      {
+     |          'objtype': 'literal', 
+     |          'datatype': 'http://www.w3.org/2001/XMLSchema#string', 
+     |          'obj': u'John Lennon', 
+     |          'subj': u'http://example.org/people#john', 
+     |          'prop': u'http://xmlns.com/foaf/0.1/name'
      |      }
      |      
      |      which can be serialized as follows in N-Triples format
      |      
-     |      <http://example.org/people#john>
-     |        <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-     |          <http://xmlns.com/foaf/0.1/Person> .
-     |      <http://example.org/people#john>
-     |        <http://xmlns.com/foaf/0.1/name>
-     |          "John Lennon" .
-     
-        Usage:
-        $ ./json_ld_processor.py
-        ................
-        ----------------------------------------------------------------------
-        Ran 16 tests in 0.012s
-
-        OK
+     |      <http://example.org/people#john> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
+     |      <http://example.org/people#john> <http://xmlns.com/foaf/0.1/name> "John Lennon" .
+     |  
      
 ## json_ld_to_ntriples.py
     json_ld_to_ntriples(doc)
@@ -90,30 +112,29 @@ $ git clone git@github.com:bradleypallen/json_ld_processor.git
         
         Usage:
         $ ./json_ld_to_ntriples.py ../test/json_ld_org_landing_page_example.json
-        <http://example.org/people#john>
-          <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-            <http://xmlns.com/foaf/0.1/Person> .
-        <http://example.org/people#john>
-          <http://xmlns.com/foaf/0.1/name>
-            "John Lennon" .
+        <http://example.org/people#john> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .
+        <http://example.org/people#john> <http://xmlns.com/foaf/0.1/name> "John Lennon" .
 
-## json_ld_to_unittest.py
-    json_ld_to_unitest(doc)
-        Generates a unittest test case suitable to cut-and-paste into json_ld_processor.py,
-        based on the deserialization of a JSON-LD document.
-        
-        Usage:
-        $ ./json_ld_to_unittest.py nested_associative_array ../test/nested_associative_array.json 
-        
-        def test_nested_associative_array(self):
-            doc = '{   "#": { "foaf": "http://xmlns.com/foaf/0.1/" },   "@": "_:bnode1", ...
-            target_graph = [{'obj': u'<http://xmlns.com/foaf/0.1/Person>', 'subj': u'_:bn...
-            self.json_ld_processing_test_case(doc, target_graph)
+## json_ld_test_suite.py
+    class TestProcessor(unittest.TestCase)
+     |  Defines a unittest test processor for automated unit testing of the JSON-LD processor.
+     |  Tests are largely drawn from examples in the specification at http://json-ld.org/spec/latest/,
+     |  but also include some based on individual and group conversations.
+     |  
+     |  Each test case simply takes a JSON-LD document, deserializes it using triples(),
+     |  and asserts that the generated list of triples is the same as a target list of triples.
+     |  
+     |  Usage:    
+     |  $ ./json_ld_test_suite.py 
+     |  ......................
+     |  ----------------------------------------------------------------------
+     |  Ran 22 tests in 0.015s
+     |  
+     |  OK
 
 # Test cases
 All of the test cases in the test suite for json_ld_processor.py are provided as stand-alone files
-in the /test directory. JSON-LD documents have extension .json, and their reserializations in N-Triples
-have extension .nt.
+in the /test directory.
 
 # License
 The MIT License

@@ -1,0 +1,4 @@
+{
+  "@": "_:bnode1",
+  "values": [ "foo", 6.5, 34, null, true ]
+}

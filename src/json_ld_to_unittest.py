@@ -7,8 +7,9 @@ Created on Oct 15, 2010
 '''
 
 import json_ld_processor as jlp
+from json_ld_to_ntriples import json_ld_to_ntriples
 
-def json_ld_to_unitest(doc):
+def json_ld_to_unittest(case, doc):
     '''
     Generates a unittest test case suitable to cut-and-paste into json_ld_processor.py,
     based on the deserialization of a JSON-LD document.
@@ -23,10 +24,24 @@ def json_ld_to_unitest(doc):
     '''
     p = jlp.Processor()
     print
-    print "        def test_%s(self):" % case
-    print "            doc = '%s'" % doc
-    print "            target_graph = %s" % [ t for t in p.triples(doc) ]
-    print "            self.json_ld_processing_test_case(doc, target_graph)"
+    print "    def test_%s(self):" % case
+    print "        '''"
+    print "        JSON-LD:"
+    print
+    for line in doc.splitlines():
+        print "        %s" % line
+    print
+    print "        N-Triples:"
+    ntriples = json_ld_to_ntriples(doc)
+    for line in ntriples.splitlines():
+        print "        %s" % line
+    print
+    print "        '''"
+    print "        p = jlp.Processor()"
+    print "        doc = '%s'" % "".join(doc.splitlines())
+    print "        generated_graph = [ t for t in p.triples(doc) ]"
+    print "        target_graph = %s" % [ t for t in p.triples(doc) ]
+    print "        self.assertTrue(graph_equal(target_graph, generated_graph))"
         
 if __name__ == "__main__":
     import sys
@@ -34,4 +49,4 @@ if __name__ == "__main__":
     filename = sys.argv[2]
     file = open(filename, 'r')
     doc = "".join(file.read().splitlines())
-    json_ld_to_unitest(doc)
+    json_ld_to_unittest(case, doc)
