@@ -1,9 +1,0 @@
-_:bnode1
-   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-     <http://microformats.org/profile/hcard#vcard> .
-_:bnode1
-   <http://microformats.org/profile/hcard#url>
-     <http://tantek.com/> .
-_:bnode1
-   <http://microformats.org/profile/hcard#fn>
-    "Tantek Çelik" .

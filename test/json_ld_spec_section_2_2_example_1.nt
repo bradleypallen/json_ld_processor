@@ -1,9 +1,0 @@
-_:e4b7e69b75204b5784c854ff9bee6c70
-   <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-     <http://xmlns.com/foaf/0.1/Person> .
-_:e4b7e69b75204b5784c854ff9bee6c70
-   <http://xmlns.com/foaf/0.1/homepage>
-     <http://manu.sporny.org/> .
-_:e4b7e69b75204b5784c854ff9bee6c70
-   <http://xmlns.com/foaf/0.1/name>
-    "Manu Sporny" .
