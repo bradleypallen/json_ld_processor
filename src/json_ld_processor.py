@@ -19,7 +19,7 @@ __author__ = 'Bradley P. Allen'
 __email__ = "bradley.p.allen@gmail.com"
 __credits__ = "Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification."
 
-import re, uuid, simplejson as json
+import re, uuid, json
 
 class Processor(object):
     '''
