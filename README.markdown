@@ -20,7 +20,7 @@ about JSON-LD.
 Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification.
 
 # Requirements
-Python 2.5 or above.
+Python 2.6 or above.
 
 # Installation
 $ git clone git@github.com:bradleypallen/json_ld_processor.git
