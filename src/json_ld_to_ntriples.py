@@ -32,7 +32,7 @@ def json_ld_to_ntriples(doc):
             ntriples +=  "<" + t["subj"].encode('utf-8') + ">"
         ntriples +=  " <" + t["prop"].encode('utf-8') + ">"
         if bnode_pattern.match(t["obj"]):
-            ntriples += t["obj"].encode('utf-8') + ' .\n'
+            ntriples += ' %s' % t["obj"].encode('utf-8') + ' .\n'
         elif t["objtype"] == "resource":
             ntriples += " <" + t["obj"].encode('utf-8') + "> .\n"
         else:

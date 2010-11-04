@@ -19,7 +19,7 @@ __author__ = 'Bradley P. Allen'
 __email__ = "bradley.p.allen@gmail.com"
 __credits__ = "Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification."
 
-import re, uuid, json
+import re, uuid, json, urlparse
 
 class Processor(object):
     '''
@@ -37,7 +37,6 @@ class Processor(object):
         
         { 
           "#": {
-                 "__vocab__": "http://example.org/default-vocab#",
                  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                  "xsd": "http://www.w3.org/2001/XMLSchema#",
                  "dc": "http://purl.org/dc/terms/",
@@ -62,7 +61,6 @@ class Processor(object):
             self.__default_context = context
         else:
             self.__default_context = {
-                                      "__vocab__": "http://example.org/default-vocab#",
                                       "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
                                       "xsd": "http://www.w3.org/2001/XMLSchema#",
                                       "dc": "http://purl.org/dc/terms/",
@@ -78,11 +76,13 @@ class Processor(object):
                                       "name": "http://xmlns.com/foaf/0.1/name",
                                       "homepage": "http://xmlns.com/foaf/0.1/homepage"
                                      }
-        self.__curie_pattern = re.compile("^\w+\:\w+$")
+        self.__curie_pattern = re.compile("^(?P<prefix>\w+)\:(?P<reference>\w+)$")
         self.__bnode_pattern = re.compile("^_\:\w+$")
-        self.__iri_pattern = re.compile("^(<?)(\w+)\:(/?)(/?)([^>\s]+)(>?)$")
-        self.__lang_pattern = re.compile("^(.+)@([a-z][a-z])$")
-        self.__typed_literal_pattern = re.compile("^(.+)\^\^(.+)$")
+        self.__iri_pattern = re.compile("^<?(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))>?$")
+        self.__wrapped_absolute_iri_pattern = re.compile("^<(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))>$")
+        self.__wrapped_relative_iri_pattern = re.compile("^<(?P<iri>[^\:>\s]+)>$")
+        self.__lang_pattern = re.compile("^(?P<literal>.+)@(?P<lang>[a-z][a-z])$")
+        self.__typed_literal_pattern = re.compile("^(?P<literal>.+)\^\^(?P<datatype>.+)$")
         self.__datetime_pattern = re.compile("^(?P<year>\d\d\d\d)([-])?(?P<month>\d\d)([-])?(?P<day>\d\d)((T|\s+)(?P<hour>\d\d)(([:])?(?P<minute>\d\d)(([:])?(?P<second>\d\d)(([.])?(?P<fraction>\d+))?)?)?)?((?P<tzzulu>Z)|(?P<tzoffset>[-+])(?P<tzhour>\d\d)([:])?(?P<tzminute>\d\d))?$")
         
     def triples(self, doc):
@@ -165,7 +165,7 @@ class Processor(object):
                             yield t # yielding each resulting triple
                     subj = "_:" + uuid.uuid4().hex # and set subj to a auto-generated bnode
                 elif subj: # otherwise, subj is a (Unicode) string
-                    subj = self.__term_to_iri(subj, context)["obj"] # so we map subj to an IRI based on context
+                    subj = self.__resource(subj, context) # so we map subj to an IRI based on context
                 else:
                     pass
             else: # otherwise, we have no reference to a resource
@@ -182,7 +182,7 @@ class Processor(object):
                     if key == "a": # if we have a type statement
                         prop = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" # set prop to IRI for rdf:type
                     else: # otherwise key is another property 
-                        prop = self.__term_to_iri(key, context)["obj"] # so we map it to an IRI based on context
+                        prop = self.__property(key, context) # so we map it to an IRI based on context
                     #
                     # Determine the object and yield a triple, recursing if necessary
                     #
@@ -191,10 +191,7 @@ class Processor(object):
                         for t in self.__triples(obj, context): # recurse
                             yield t # yielding each resulting triple
                         # and then yield <subj, prop, obj['@']>
-                        t = self.__process_object(obj["@"], context)
-                        t["subj"] = subj
-                        t["prop"] = prop
-                        yield t 
+                        yield self.__triple(subj, prop, obj["@"], context)
                     elif type(obj).__name__ == 'list': # otherwise if obj is an array
                         for element in obj: # then for each element in the array
                             # if the element is an array or object
@@ -203,22 +200,13 @@ class Processor(object):
                                     yield t # yielding each resulting triple
                                 if type(element).__name__ == 'dict': # and if the element is an object
                                     # then yield <subj, prop, element['@']>
-                                    t = self.__process_object(element["@"], context)
-                                    t["subj"] = subj
-                                    t["prop"] = prop
-                                    yield t 
+                                    yield self.__triple(subj, prop, element["@"], context)
                             elif element: # otherwise the element is a boolean, integer, float, or string
                                 # and we yield <subj, prop, element>
-                                t = self.__process_object(element, context)
-                                t["subj"] = subj
-                                t["prop"] = prop
-                                yield t 
+                                yield self.__triple(subj, prop, element, context)
                     elif obj: # otherwise obj is a boolean, integer, float, or string
                         # and we yield <subj, prop, obj>
-                        t = self.__process_object(obj, context)
-                        t["subj"] = subj
-                        t["prop"] = prop
-                        yield t 
+                        yield self.__triple(subj, prop, obj, context)
                     else: # otherwise obj is a null
                         pass # and we yield nothing
         #
@@ -248,83 +236,117 @@ class Processor(object):
             context[prefix] = local_context[prefix]
         return context
 
-    def __process_object(self, obj, context):
+    def __property(self, key, context):
+        '''
+        Returns an IRI as a property for a triple, given a JSON-LD object key.
+        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, [2] http://www.ietf.org/rfc/rfc3987.txt.
+        '''
+        m = self.__iri_pattern.match(key)
+        if m: # there's something and a colon followed by something
+            if m.group(1) == '<' and m.group(6) == '>': # if it is wrapped in angle brackets
+                return key.strip('<>') # then assume it is an IRI, strip the angle brackets and return it
+            elif m.group(3) == '/': # looks like an irrelative-ref as defined in [2], not wrapped in angle brackets
+                return key # so assume it's already an IRI
+            elif context.has_key(m.group(2)): # otherwise, since we have a binding for the prefix
+                return context[m.group(2)] + m.group(5) # we append the key to the prefix IRI
+            elif m.group(2) == '_': # otherwise if this is a blank node
+                return key # we return it directly
+            else: # otherwise we have prefix that is not in the context
+                raise Exception('The current context is missing a match for "%s" in "%s"' % (m.group(2), key))
+        else: # otherwise this must be a key or a relative IRI
+            if context.has_key(key): # if context contains key as a key
+                return context[key] # return the key value IRI
+            elif context.has_key("#vocab"): # otherwise if we have a #vocab IRI
+                return context["#vocab"] + key # we append the key to the #vocab IRI
+            else: # otherwise we complain
+                raise Exception("The current context is missing a #vocab prefix")
+            
+    def __triple(self, subj, prop, obj, context):
         '''
         Returns an object value of a triple, given a JSON-LD object key value.
         '''
-        if type(obj).__name__ in ['str', 'unicode'] and (self.__curie_pattern.match(obj) or self.__iri_pattern.match(obj) or context.has_key(obj)):
-            return self.__term_to_iri(obj, context)
+        if type(obj).__name__ in ['str', 'unicode'] and (context.has_key(obj) or self.__bnode_pattern.match(obj) or self.__curie_pattern.match(obj) or self.__wrapped_absolute_iri_pattern.match(obj) or self.__wrapped_relative_iri_pattern.match(obj)):
+            return self.__resource_valued_triple(subj, prop, obj, context)
         else:
-            return self.__value_to_typed_literal(obj, context)
+            return self.__literal_valued_triple(subj, prop, obj, context)
         
-    def __term_to_iri(self, term, context):
+    def __resource_valued_triple(self, subj, prop, obj, context):
         '''
-        Returns an IRI as an object for a triple, given a JSON-LD object key value 
-        that is a term.
-        
-        A term is either a IRI, an IRI wrapped in angle brackets, a CURIE, a blank 
-        node or a string that occurs as a key in the context.
-        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, 
-        [2] http://www.ietf.org/rfc/rfc3987.txt.
+        Returns a dict representing a resource as an object.
+        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, [2] http://www.ietf.org/rfc/rfc3987.txt.
         '''
-        resource = { "objtype": "resource" }
-        m = self.__iri_pattern.match(term)
-        if m: # there's something and a colon followed by something
-            if m.group(1) == '<' and m.group(6) == '>': # if it is wrapped in angle brackets
-                resource["obj"] = term.strip('<>') # then assume it is an IRI, strip the angle brackets and return it
-            elif m.group(3) == '/': # looks like an irrelative-ref as defined in [2], not wrapped in angle brackets
-                resource["obj"] = term # so assume it's already an IRI
-            elif context.has_key(m.group(2)): # otherwise, since we have a binding for the prefix
-                resource["obj"] = context[m.group(2)] + m.group(5) # we concatenate the prefix IRI to the term to get an absolute IRI
-            elif m.group(2) == '_': # otherwise if this is a blank node
-                resource["obj"] = term # we return it directly
-            else: # otherwise we have prefix that is not the context
-                raise Exception('The current context is missing a match for "%s" in "%s"' % (m.group(2), term))
-        else: # otherwise this must be a CURIE reference not preceded by a prefix and a colon
-            if context.has_key(term): # if context contains term as a key
-                resource["obj"] = context[term] # return the key value IRI
-            elif context.has_key("__vocab__"): # otherwise if we have a default prefix IRI
-                resource["obj"] = context["__vocab__"] + term # we concatenate the __vocab__ prefix IRI to the term to get an IRI
-            else: # otherwise we complain
-                raise Exception("The current context is missing a __vocab__ prefix")
-        return resource
+        return { "subj": subj, "prop": prop, "objtype": "resource", "obj": self.__resource(obj, context) }
+
+    def __resource(self, value, context):
+        '''
+        Returns a resource, which is either an absolute IRI or a blank node.
+        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, [2] http://www.ietf.org/rfc/rfc3987.txt.
+        '''
+        wrapped_absolute_iri = self.__wrapped_absolute_iri_pattern.match(value)
+        wrapped_relative_iri = self.__wrapped_relative_iri_pattern.match(value)
+        curie = self.__curie_pattern.match(value)
+        bnode = self.__bnode_pattern.match(value)
+        if context.has_key(value):
+            return context[value]
+        elif bnode:
+            return value
+        elif curie:
+            if context.has_key(curie.group('prefix')):
+                return context[curie.group('prefix')] + curie.group('reference')
+            elif context.has_key(curie.group('reference')):
+                return context[curie.group('reference')]
+            else:
+                raise Exception('The current context is missing a match for "%s" or "%s" in "%s"' % (curie.group('prefix'), curie.group('reference'), value))
+        elif wrapped_absolute_iri:
+            if context.has_key('#base'):
+                base = context['#base']
+            else:
+                base = ''
+            return urlparse.urljoin(base, wrapped_absolute_iri.group('iri'))
+        elif wrapped_relative_iri:
+            if context.has_key('#base'):
+                return urlparse.urljoin(context['#base'], wrapped_relative_iri.group('iri'))
+            else:
+                raise Exception("The current context is missing a #base prefix")
+        else:
+            raise Exception("The value is neither a CURIE, blank node nor a wrapped IRI")
             
-    def __value_to_typed_literal(self, value, context):
+    def __literal_valued_triple(self, subj, prop, value, context):
         '''
-        Returns a dict describing a typed literal, given a JSON-LD associative array key value.
+        Returns a dict representing a triple with a typed literal as an object.
         '''
-        typed_literal = { "objtype": "literal" }
+        triple = { "subj": subj, "prop": prop, "objtype": "literal" }
         value_type = type(value).__name__
         if value_type == 'bool':
             if value:
-                typed_literal["obj"] = "true"
-                typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#boolean"
+                triple["obj"] = "true"
+                triple["datatype"] = "http://www.w3.org/2001/XMLSchema#boolean"
             else:
-                typed_literal["obj"] = "false"
-                typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#boolean"
+                triple["obj"] = "false"
+                triple["datatype"] = "http://www.w3.org/2001/XMLSchema#boolean"
         elif value_type in ['int', 'long']:
-            typed_literal["obj"] = ("%d" % value)
-            typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#integer"
+            triple["obj"] = ("%d" % value)
+            triple["datatype"] = "http://www.w3.org/2001/XMLSchema#integer"
         elif value_type == 'float':
-            typed_literal["obj"] = ("%f" % value)
-            typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#float"
+            triple["obj"] = ("%f" % value)
+            triple["datatype"] = "http://www.w3.org/2001/XMLSchema#float"
         elif value_type in ['str', 'unicode']:
             typed_literal_match = self.__typed_literal_pattern.match(value)
             lang_match = self.__lang_pattern.match(value)
             if typed_literal_match:
-                typed_literal["obj"] = typed_literal_match.group(1)
-                typed_literal["datatype"] = self.__term_to_iri(typed_literal_match.group(2), context)["obj"]
+                triple["obj"] = typed_literal_match.group(1)
+                triple["datatype"] = self.__resource(typed_literal_match.group(2), context)
             elif self.__datetime_pattern.match(value):
-                typed_literal["obj"] = value
-                typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#dateTime"
+                triple["obj"] = value
+                triple["datatype"] = "http://www.w3.org/2001/XMLSchema#dateTime"
             elif lang_match:
-                typed_literal["obj"] = lang_match.group(1)
-                typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
-                typed_literal["lang"] = lang_match.group(2)
+                triple["obj"] = lang_match.group(1)
+                triple["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
+                triple["lang"] = lang_match.group(2)
             else:
-                typed_literal["obj"] = value
-                typed_literal["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
+                triple["obj"] = value
+                triple["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
         else:
             raise Exception("Value '%s' has unknown literal type: %s" % (value, value_type))
-        return typed_literal
+        return triple
     

@@ -1,0 +1,14 @@
+{
+ "#": {"#base": "http://www.t4gm.info/concept/", "skos": "http://www.w3.org/2004/02/skos/core#"},
+ "a": "skos:Concept", 
+ "@": "<t4gm-4-dash-h-clubs>", 
+ "skos:changeNote": "Formerly TGMI term.@en", 
+ "skos:inScheme": "<http://www.t4gm.info/>",
+ "skos:prefLabel": "4-H clubs@en", 
+ "skos:exactMatch": "<http://id.loc.gov/vocabulary/graphicMaterials/tgm000004>", 
+ "skos:broader": ["<t4gm-clubs>", "<t4gm-youth-organizations>"], 
+ "skos:scopeNote": "Includes activities and structures.@en",
+ "skos:altLabel": "Four-H clubs@en", 
+ "skos:related": ["<t4gm-children>", "<t4gm-farmers-groups>"], 
+ "skos:editorialNote": "Double index under ORGANIZATIONS&#39; FACILITIES (or NTs) for images that focus on facilities.@en"
+}

@@ -1,4 +1,5 @@
 {
+  "#": { "#vocab": "http://example.org/default/" },
   "@": "_:bnode1",
   "values": [ "foo", 6.5, 34, null, true ]
 }
