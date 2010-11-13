@@ -82,7 +82,7 @@ class Processor(object):
         self.__absolute_iri_pattern = re.compile("^(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))$")
         self.__wrapped_absolute_iri_pattern = re.compile("^<(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))>$")
         self.__wrapped_relative_iri_pattern = re.compile("^<(?P<iri>[^\:>\s]+)>$")
-        self.__lang_pattern = re.compile("^(?P<literal>.+)@(?P<lang>[a-z][a-z])$")
+        self.__lang_pattern = re.compile("^(?P<literal>.+)@(?P<lang>[a-zA-Z][a-zA-Z0-9\-]+)$")
         self.__typed_literal_pattern = re.compile("^(?P<literal>.+)\^\^(?P<datatype>.+)$")
         self.__datetime_pattern = re.compile("^(?P<year>\d\d\d\d)([-])?(?P<month>\d\d)([-])?(?P<day>\d\d)((T|\s+)(?P<hour>\d\d)(([:])?(?P<minute>\d\d)(([:])?(?P<second>\d\d)(([.])?(?P<fraction>\d+))?)?)?)?((?P<tzzulu>Z)|(?P<tzoffset>[-+])(?P<tzhour>\d\d)([:])?(?P<tzminute>\d\d))?$")
         
