@@ -79,6 +79,7 @@ class Processor(object):
         self.__curie_pattern = re.compile("^(?P<prefix>\w+)\:(?P<reference>\w+)$")
         self.__bnode_pattern = re.compile("^_\:\w+$")
         self.__iri_pattern = re.compile("^<?(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))>?$")
+        self.__absolute_iri_pattern = re.compile("^(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))$")
         self.__wrapped_absolute_iri_pattern = re.compile("^<(?P<iri>(\w+)\:(/?)(/?)([^>\s]+))>$")
         self.__wrapped_relative_iri_pattern = re.compile("^<(?P<iri>[^\:>\s]+)>$")
         self.__lang_pattern = re.compile("^(?P<literal>.+)@(?P<lang>[a-z][a-z])$")
@@ -273,14 +274,12 @@ class Processor(object):
     def __resource_valued_triple(self, subj, prop, obj, context):
         '''
         Returns a dict representing a resource as an object.
-        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, [2] http://www.ietf.org/rfc/rfc3987.txt.
         '''
         return { "subj": subj, "prop": prop, "objtype": "resource", "obj": self.__resource(obj, context) }
 
     def __resource(self, value, context):
         '''
         Returns a resource, which is either an absolute IRI or a blank node.
-        Specifications referenced in comments: [1] http://www.w3.org/TR/curie, [2] http://www.ietf.org/rfc/rfc3987.txt.
         '''
         wrapped_absolute_iri = self.__wrapped_absolute_iri_pattern.match(value)
         wrapped_relative_iri = self.__wrapped_relative_iri_pattern.match(value)
@@ -309,7 +308,25 @@ class Processor(object):
             else:
                 raise Exception("The current context is missing a #base prefix")
         else:
-            raise Exception("The value is neither a CURIE, blank node nor a wrapped IRI")
+            raise Exception("%s is neither a CURIE, blank node nor a wrapped IRI" % (value))
+            
+    def __datatype(self, value, context):
+        '''
+        Returns a resource, which is either an absolute IRI or a blank node.
+        '''
+        absolute_iri = self.__absolute_iri_pattern.match(value)
+        curie = self.__curie_pattern.match(value)
+        if curie:
+            if context.has_key(curie.group('prefix')):
+                return context[curie.group('prefix')] + curie.group('reference')
+            elif context.has_key(curie.group('reference')):
+                return context[curie.group('reference')]
+            else:
+                raise Exception('The current context is missing a match for "%s" or "%s" in "%s"' % (curie.group('prefix'), curie.group('reference'), value))
+        elif absolute_iri:
+            return absolute_iri.group('iri')
+        else:
+            raise Exception("%s is neither a CURIE, blank node nor a wrapped IRI" % (value))
             
     def __literal_valued_triple(self, subj, prop, value, context):
         '''
@@ -335,7 +352,7 @@ class Processor(object):
             lang_match = self.__lang_pattern.match(value)
             if typed_literal_match:
                 triple["obj"] = typed_literal_match.group(1)
-                triple["datatype"] = self.__resource(typed_literal_match.group(2), context)
+                triple["datatype"] = self.__datatype(typed_literal_match.group(2), context)
             elif self.__datetime_pattern.match(value):
                 triple["obj"] = value
                 triple["datatype"] = "http://www.w3.org/2001/XMLSchema#dateTime"
