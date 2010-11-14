@@ -327,7 +327,10 @@ class Processor(object):
             return absolute_iri.group('iri')
         else:
             raise Exception("%s is neither a CURIE, blank node nor a wrapped IRI" % (value))
-            
+        
+    def __unescape(self, str):
+        return str.replace("\\<", "<").replace("\\>", ">").replace("\\@", "@").replace("\\#", "#").replace("\\:", ":").replace("\\^", "^")        
+        
     def __literal_valued_triple(self, subj, prop, value, context):
         '''
         Returns a dict representing a triple with a typed literal as an object.
@@ -351,17 +354,17 @@ class Processor(object):
             typed_literal_match = self.__typed_literal_pattern.match(value)
             lang_match = self.__lang_pattern.match(value)
             if typed_literal_match:
-                triple["obj"] = typed_literal_match.group(1)
+                triple["obj"] = self.__unescape(typed_literal_match.group(1))
                 triple["datatype"] = self.__datatype(typed_literal_match.group(2), context)
             elif self.__datetime_pattern.match(value):
-                triple["obj"] = value
+                triple["obj"] = self.__unescape(value)
                 triple["datatype"] = "http://www.w3.org/2001/XMLSchema#dateTime"
             elif lang_match:
-                triple["obj"] = lang_match.group(1)
+                triple["obj"] = self.__unescape(lang_match.group(1))
                 triple["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
                 triple["lang"] = lang_match.group(2)
             else:
-                triple["obj"] = value
+                triple["obj"] = self.__unescape(value)
                 triple["datatype"] = "http://www.w3.org/2001/XMLSchema#string"
         else:
             raise Exception("Value '%s' has unknown literal type: %s" % (value, value_type))
