@@ -19,7 +19,13 @@ __author__ = 'Bradley P. Allen'
 __email__ = "bradley.p.allen@gmail.com"
 __credits__ = "Thanks to Manu Sporny and Mark Birbeck for drafting the JSON-LD specification."
 
-import re, uuid, json, urlparse
+import re
+import uuid
+import json
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 class Processor(object):
     '''
